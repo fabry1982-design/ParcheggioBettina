@@ -736,7 +736,7 @@ window.logout = () => {
   showToast('Disconnesso');
 };
 
-function showAuthModal(mode) {
+window.showAuthModal = function(mode) {
   const el = document.getElementById('authContent');
   const modal = document.getElementById('modalAuth');
   if (mode === 'login') {
