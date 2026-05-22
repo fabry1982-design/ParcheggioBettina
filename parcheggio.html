@@ -751,20 +751,33 @@ function showAuthModal(mode) {
     buildNumpad('loginNumpad', loginPinHandler);
   } else {
     loadFamilies().then(families => {
-      const famOpts = families.length
-        ? families.map(f=>`<option value="${f.id}">${f.nome}</option>`).join('')
-        : '<option value="">Nessuna famiglia configurata</option>';
       el.innerHTML = `
         <div class="modal-title">Registrati</div>
         <div class="modal-sub">Prima registrazione</div>
         <div class="form-group"><label class="form-label">Nome e cognome</label><input id="regNome" class="form-input" placeholder="Mario Rossi"></div>
-        <div class="form-group"><label class="form-label">Famiglia / Appartamento</label><select id="regFam" class="form-select"><option value="">Scegli famiglia</option>${famOpts}</select></div>
+        <div class="form-group"><label class="form-label">Famiglia / Appartamento</label><select id="regFam" class="form-select"></select></div>
         <div class="form-group"><label class="form-label">Modello auto</label><input id="regAuto" class="form-input" placeholder="Fiat 500"></div>
         <div class="form-group"><label class="form-label">Targa</label><input id="regTarga" class="form-input mono" placeholder="AA000AA" maxlength="10"></div>
         <div class="form-group"><label class="form-label">PIN (4 cifre)</label><input id="regPin" class="form-input" style="letter-spacing:6px;font-size:20px;text-align:center;font-family:'DM Mono',monospace" placeholder="••••" maxlength="4" type="password" inputmode="numeric"></div>
         <button class="btn btn-primary" onclick="doRegister()">Registrati</button>
         <button class="btn btn-secondary" style="margin-top:8px" onclick="showAuthModal('login')">Ho già un account</button>
       `;
+      // Popola il select separatamente per evitare conflitti con i backtick
+      const sel = document.getElementById('regFam');
+      const defaultOpt = document.createElement('option');
+      defaultOpt.value = ''; defaultOpt.textContent = 'Scegli famiglia';
+      sel.appendChild(defaultOpt);
+      if (families.length) {
+        families.forEach(f => {
+          const opt = document.createElement('option');
+          opt.value = f.id; opt.textContent = f.nome;
+          sel.appendChild(opt);
+        });
+      } else {
+        const opt = document.createElement('option');
+        opt.value = ''; opt.textContent = 'Nessuna famiglia — chiedi all'admin';
+        sel.appendChild(opt);
+      }
     });
   }
   document.getElementById('modalAuth').classList.add('open');
@@ -1018,5 +1031,6 @@ renderHome();
 </script>
 </body>
 </html>
+
 
 
