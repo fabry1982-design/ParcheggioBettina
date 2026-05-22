@@ -869,19 +869,19 @@ window.addFam = async function() {
   const nome = document.getElementById('newFamName').value.trim();
   if (!nome) { showToast('Inserisci un nome'); return; }
   const id = nome.toLowerCase().replace(/\s+/g,'-');
-  await setDoc(doc(db,'famiglie',id), {nome, id});
+  // Aggiorna UI subito, prima di aspettare Firebase
+  const famList = document.getElementById('famList');
+  const placeholder = famList ? famList.querySelector('[style*="Nessuna"]') : null;
+  if (placeholder) placeholder.remove();
+  if (famList) {
+    const div = document.createElement('div');
+    div.className = 'user-item';
+    div.innerHTML = `<div class="user-avatar">${initials(nome)}</div><div class="user-info"><div class="user-name">${nome}</div></div><button class="user-delete" onclick="deleteFam('${id}')">Rimuovi</button>`;
+    famList.appendChild(div);
+  }
   document.getElementById('newFamName').value = '';
   showToast('Famiglia aggiunta ✓');
-  const families = await loadFamilies();
-  const famList = document.getElementById('famList');
-  if (famList) {
-    famList.innerHTML = families.length ? families.map(f=>`
-      <div class="user-item">
-        <div class="user-avatar">${initials(f.nome)}</div>
-        <div class="user-info"><div class="user-name">${f.nome}</div></div>
-        <button class="user-delete" onclick="deleteFam('${f.id}')">Rimuovi</button>
-      </div>`).join('') : '<div style="color:var(--text3);font-size:13px;padding:8px 0">Nessuna famiglia</div>';
-  }
+  await setDoc(doc(db,'famiglie',id), {nome, id});
 };
 window.deleteFam = async function(id) {
   if (!confirm('Rimuovere questa famiglia?')) return;
@@ -1018,4 +1018,5 @@ renderHome();
 </script>
 </body>
 </html>
+
 
