@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Parcheggio Condominio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F4F0;
+    --surface: #FFFFFF;
+    --surface2: #EEEDE8;
+    --text: #1A1A18;
+    --text2: #6B6B65;
+    --text3: #9E9E96;
+    --border: rgba(0,0,0,0.08);
+    --accent: #1A1A18;
+    --accent-text: #FFFFFF;
+    --green: #2D7A4F;
+    --green-bg: #E8F5EE;
+    --red: #C0392B;
+    --red-bg: #FDECEA;
+    --amber: #B8720A;
+    --amber-bg: #FEF5E4;
+    --blue: #1A5FAB;
+    --blue-bg: #E8F0FB;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  .app-header {
+    background: var(--surface);
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .app-logo { display: flex; align-items: center; gap: 10px; }
+  .app-logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .app-logo-text { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+  .app-logo-sub { font-size: 11px; color: var(--text3); margin-top: 1px; font-family: 'DM Mono', monospace; }
+  .header-user {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text2);
+    cursor: pointer; padding: 6px 10px;
+    background: var(--surface2); border-radius: var(--radius-sm);
+  }
+  .header-user .avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent); color: white;
+    font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* NAV */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+    z-index: 100;
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 500; color: var(--text3);
+    cursor: pointer; padding: 4px 0;
+    transition: color 0.2s;
+  }
+  .nav-btn.active { color: var(--accent); }
+  .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; }
+
+  /* MAIN */
+  .main { padding: 16px 16px 90px; }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 12px; font-weight: 600;
+    color: var(--text3); text-transform: uppercase;
+    letter-spacing: 0.8px; margin-bottom: 12px;
+  }
+
+  /* DATE NAVIGATOR */
+  .date-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    margin-bottom: 12px;
+  }
+  .date-nav-btn {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: var(--text);
+    transition: background 0.15s;
+  }
+  .date-nav-btn:hover { background: var(--border); }
+  .date-center { text-align: center; }
+  .date-main { font-size: 16px; font-weight: 600; }
+  .date-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+  /* SLOT CARDS */
+  .slots-grid { display: flex; flex-direction: column; gap: 10px; }
+  .slot-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .slot-label {
+    font-size: 11px; font-weight: 600; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    margin-bottom: 8px; padding: 0 2px;
+  }
+  .slot-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    min-height: 100px;
+  }
+  .slot-card:active { transform: scale(0.97); }
+  .slot-card.free { border-color: var(--green); }
+  .slot-card.free:hover { background: var(--green-bg); }
+  .slot-card.taken { border-color: var(--border); cursor: default; background: var(--surface2); }
+  .slot-card.mine { border-color: var(--blue); background: var(--blue-bg); }
+  .slot-card.blocked { border-color: var(--amber); background: var(--amber-bg); cursor: default; }
+  .slot-card.past { opacity: 0.45; cursor: default; }
+
+  .slot-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px; font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .slot-status-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 500;
+    padding: 3px 8px; border-radius: 20px;
+  }
+  .tag-free { background: var(--green-bg); color: var(--green); }
+  .tag-taken { background: var(--surface2); color: var(--text3); }
+  .tag-mine { background: var(--blue-bg); color: var(--blue); }
+  .tag-blocked { background: var(--amber-bg); color: var(--amber); }
+
+  .slot-owner { font-size: 12px; color: var(--text2); margin-top: 6px; }
+  .slot-plate {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--text3);
+    margin-top: 2px;
+  }
+  .slot-cancel-btn {
+    position: absolute; top: 10px; right: 10px;
+    width: 24px; height: 24px;
+    background: rgba(192,57,43,0.1); border-radius: 50%;
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--red);
+    transition: background 0.15s;
+  }
+  .slot-cancel-btn:hover { background: rgba(192,57,43,0.2); }
+
+  /* WAITING LIST badge */
+  .waiting-badge {
+    position: absolute; bottom: 10px; right: 10px;
+    font-size: 10px; font-weight: 500;
+    background: var(--surface2); color: var(--text3);
+    padding: 2px 7px; border-radius: 20px;
+  }
+
+  /* TIME BADGE */
+  .time-badge {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--text2); margin-bottom: 8px;
+  }
+  .time-badge svg { width: 13px; height: 13px; }
+
+  /* MODALS */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 200;
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    padding: 20px 20px max(20px, env(safe-area-inset-bottom));
+    width: 100%; max-width: 430px;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-handle {
+    width: 40px; height: 4px; border-radius: 2px;
+    background: var(--surface2); margin: 0 auto 18px;
+  }
+  .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .modal-sub { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+
+  /* FORMS */
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%; padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; color: var(--text);
+    background: var(--surface);
+    transition: border-color 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-input.mono { font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+  .form-input.pin { font-family: 'DM Mono', monospace; letter-spacing: 6px; font-size: 20px; text-align: center; }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%; padding: 14px;
+    border: none; border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary { background: var(--surface2); color: var(--text); }
+  .btn-danger { background: var(--red-bg); color: var(--red); }
+  .btn-green { background: var(--green); color: white; }
+  .btn + .btn { margin-top: 8px; }
+
+  /* PIN DOTS */
+  .pin-display {
+    display: flex; gap: 12px; justify-content: center; margin-bottom: 20px;
+  }
+  .pin-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid var(--border);
+    transition: all 0.15s;
+  }
+  .pin-dot.filled { background: var(--accent); border-color: var(--accent); }
+
+  /* NUMPAD */
+  .numpad {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    margin-bottom: 16px;
+  }
+  .numpad-btn {
+    padding: 16px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); background: var(--surface2);
+    font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 400;
+    cursor: pointer; text-align: center;
+    transition: background 0.1s;
+  }
+  .numpad-btn:active { background: var(--accent); color: white; }
+  .numpad-del { font-size: 18px; }
+
+  /* INFO ROWS */
+  .info-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-row-label { color: var(--text2); }
+  .info-row-value { font-weight: 500; }
+
+  /* USER LIST */
+  .user-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .user-item:last-child { border-bottom: none; }
+  .user-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; color: var(--text2);
+    flex-shrink: 0;
+  }
+  .user-info { flex: 1; }
+  .user-name { font-size: 14px; font-weight: 500; }
+  .user-plate { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .user-delete { padding: 6px 12px; font-size: 12px; border-radius: var(--radius-sm); background: var(--red-bg); color: var(--red); border: none; cursor: pointer; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 32px 16px; color: var(--text3);
+  }
+  .empty-state-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-state-text { font-size: 14px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--accent); color: white;
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; transition: all 0.3s;
+    z-index: 300; white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* LOADING */
+  .loading { text-align: center; padding: 40px; color: var(--text3); font-size: 14px; }
+  .spinner {
+    width: 24px; height: 24px; margin: 0 auto 10px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ADMIN BLOCK */
+  .block-form { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .block-slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .block-slot-opt {
+    padding: 10px; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); text-align: center;
+    cursor: pointer; font-size: 13px; font-weight: 500;
+    transition: all 0.15s;
+  }
+  .block-slot-opt.selected { border-color: var(--amber); background: var(--amber-bg); color: var(--amber); }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .section-title { font-size: 18px; font-weight: 600; }
+
+  /* WAITING indicator */
+  .waiting-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text3);
+    margin-top: 8px;
+    padding: 8px 12px; background: var(--surface2);
+    border-radius: var(--radius-sm);
+  }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 16px; }
+  .tab { flex: 1; text-align: center; padding: 8px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text2); transition: all 0.15s; }
+  .tab.active { background: var(--surface); color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="app-header">
+  <div class="app-logo">
+    <div class="app-logo-icon">🅿️</div>
+    <div>
+      <div class="app-logo-text">PostiBettina</div>
+      <div class="app-logo-sub">condominio</div>
+    </div>
+  </div>
+  <div class="header-user" id="headerUser" onclick="openProfile()">
+    <div class="avatar" id="headerAvatar">?</div>
+    <span id="headerName">Accedi</span>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- SCREEN: HOME (parcheggi) -->
+  <div class="screen active" id="screenHome">
+    <div class="date-nav">
+      <button class="date-nav-btn" onclick="changeDay(-1)">‹</button>
+      <div class="date-center">
+        <div class="date-main" id="dateMain">Oggi</div>
+        <div class="date-sub" id="dateSub"></div>
+      </div>
+      <button class="date-nav-btn" onclick="changeDay(1)">›</button>
+    </div>
+
+    <div id="slotsContainer">
+      <div class="loading"><div class="spinner"></div>Caricamento...</div>
+    </div>
+  </div>
+
+  <!-- SCREEN: PRENOTAZIONI MIE -->
+  <div class="screen" id="screenMie">
+    <div class="section-header" style="margin-bottom:16px">
+      <div class="section-title">Le mie prenotazioni</div>
+    </div>
+    <div id="mieContainer">
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-text">Accedi per vedere le tue prenotazioni</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: ADMIN -->
+  <div class="screen" id="screenAdmin">
+    <div class="section-header" style="margin-bottom:16px">
+      <div class="section-title">Admin</div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" id="tabBlock" onclick="switchAdminTab('block')">Blocca posto</div>
+      <div class="tab" id="tabUsers" onclick="switchAdminTab('users')">Utenti</div>
+    </div>
+
+    <div id="adminBlock">
+      <div class="card">
+        <div class="card-title">Blocca per fornitore</div>
+        <div class="form-group">
+          <label class="form-label">Data</label>
+          <input type="date" class="form-input" id="blockDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fascia oraria</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="block-slot-opt selected" id="blockSlotMattina" onclick="selectBlockSlot('mattina')">☀️ Diurna</div>
+            <div class="block-slot-opt" id="blockSlotSerale" onclick="selectBlockSlot('serale')">🌙 Serale</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Posto</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div class="block-slot-opt selected" id="blockP1" onclick="selectBlockPost('1')">P1</div>
+            <div class="block-slot-opt" id="blockP2" onclick="selectBlockPost('2')">P2</div>
+            <div class="block-slot-opt" id="blockPAll" onclick="selectBlockPost('all')">Entrambi</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Motivo (opzionale)</label>
+          <input type="text" class="form-input" id="blockReason" placeholder="es. Giardiniere, Pulizie...">
+        </div>
+        <button class="btn btn-primary" onclick="adminBlock()">Blocca</button>
+        <button class="btn btn-secondary" style="margin-top:8px" onclick="adminUnblock()">Rimuovi blocco</button>
+      </div>
+    </div>
+
+    <div id="adminUsers" style="display:none">
+      <div class="card">
+        <div class="card-title">Utenti registrati</div>
+        <div id="usersListContainer"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="nav-btn active" id="navHome" onclick="switchScreen('Home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+    <span>Parcheggi</span>
+  </div>
+  <div class="nav-btn" id="navMie" onclick="switchScreen('Mie')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+    <span>Le mie</span>
+  </div>
+  <div class="nav-btn" id="navAdmin" onclick="switchScreen('Admin')" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="4"/><path d="M12 14c-5 0-8 2-8 4v1h16v-1c0-2-3-4-8-4z"/><path d="M18 3l1.5 3H21l-1.2 1.5.5 2.5-2.3-1.5-2.3 1.5.5-2.5L15 6h1.5L18 3z"/></svg>
+    <span>Admin</span>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL: LOGIN / REGISTRAZIONE -->
+<div class="modal-overlay" id="modalAuth">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="authContent"></div>
+  </div>
+</div>
+
+<!-- MODAL: PRENOTA -->
+<div class="modal-overlay" id="modalBook">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="bookContent"></div>
+  </div>
+</div>
+
+<!-- MODAL: PROFILO -->
+<div class="modal-overlay" id="modalProfile">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="profileContent"></div>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, deleteDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCLpE4VmduyGtRHlNa1pgm3AmEPHZirkDw",
+  authDomain: "posticondominiobettina.firebaseapp.com",
+  projectId: "posticondominiobettina",
+  storageBucket: "posticondominiobettina.firebasestorage.app",
+  messagingSenderId: "524400396757",
+  appId: "1:524400396757:web:fab21d5db1b7f884fb555c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ─── STATE ───────────────────────────────────────────────────
+let currentUser = JSON.parse(localStorage.getItem('pkUser') || 'null');
+let currentDay = 0; // offset from today
+let selectedBlockSlot = 'mattina';
+let selectedBlockPost = '1';
+let pendingBookSlot = null; // {slot, post, date}
+let allBookings = {};
+let unsubBookings = null;
+
+const ADMIN_PIN = '0000'; // cambia qui il PIN admin
+const SLOTS = [
+  { id: 'mattina', label: 'Diurna', emoji: '☀️', time: '08:00 – 17:00' },
+  { id: 'serale', label: 'Serale', emoji: '🌙', time: '17:00 – 08:00' },
+];
+const POSTS = ['P1', 'P2'];
+
+// ─── UTILS ───────────────────────────────────────────────────
+function dateStr(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().slice(0, 10);
+}
+function formatDate(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  const days = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+  const months = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+  return {
+    main: offset === 0 ? 'Oggi' : offset === 1 ? 'Domani' : offset === -1 ? 'Ieri' : `${days[d.getDay()]} ${d.getDate()}`,
+    sub: `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
+  };
+}
+function bookingKey(date, slot, post) { return `${date}_${slot}_${post}`; }
+function initials(name) { return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function isSlotPast(offset, slotId) {
+  if (offset > 0) return false;
+  if (offset < 0) return true;
+  const h = new Date().getHours();
+  if (slotId === 'mattina') return h >= 17;
+  return false;
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────
+window.openProfile = function() {
+  if (!currentUser) { showAuthModal('login'); return; }
+  const el = document.getElementById('profileContent');
+  el.innerHTML = `
+    <div class="modal-title">Il mio profilo</div>
+    <div class="modal-sub">${currentUser.nome}</div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="info-row"><span class="info-row-label">Nome</span><span class="info-row-value">${currentUser.nome}</span></div>
+      <div class="info-row"><span class="info-row-label">Targa</span><span class="info-row-value" style="font-family:'DM Mono',monospace">${currentUser.targa}</span></div>
+      <div class="info-row"><span class="info-row-label">Auto</span><span class="info-row-value">${currentUser.auto || '—'}</span></div>
+    </div>
+    <button class="btn btn-danger" onclick="logout()">Esci</button>
+    <button class="btn btn-secondary" style="margin-top:8px" onclick="closeModal('modalProfile')">Chiudi</button>
+  `;
+  document.getElementById('modalProfile').classList.add('open');
+};
+
+window.logout = function() {
+  localStorage.removeItem('pkUser');
+  currentUser = null;
+  updateHeaderUser();
+  closeModal('modalProfile');
+  document.getElementById('navAdmin').style.display = 'none';
+  renderSlots();
+  showToast('Disconnesso');
+};
+
+function showAuthModal(mode) {
+  const el = document.getElementById('authContent');
+  if (mode === 'login') {
+    el.innerHTML = `
+      <div class="modal-title">Accedi</div>
+      <div class="modal-sub">Inserisci la tua targa e PIN</div>
+      <div class="form-group">
+        <label class="form-label">Targa</label>
+        <input id="loginTarga" class="form-input mono" placeholder="AA000AA" maxlength="10">
+      </div>
+      <div class="pin-display">
+        <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+        <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+      </div>
+      <div class="numpad" id="loginNumpad"></div>
+      <button class="btn btn-secondary" onclick="showAuthModal('register')">Non hai un account? Registrati</button>
+      <button class="btn btn-secondary" style="margin-top:8px" onclick="closeModal('modalAuth')">Annulla</button>
+    `;
+    buildNumpad('loginNumpad', loginPinHandler);
+  } else {
+    el.innerHTML = `
+      <div class="modal-title">Registrati</div>
+      <div class="modal-sub">Prima registrazione — ci vuole un minuto</div>
+      <div class="form-group">
+        <label class="form-label">Nome e cognome</label>
+        <input id="regNome" class="form-input" placeholder="Mario Rossi">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Modello auto</label>
+        <input id="regAuto" class="form-input" placeholder="Fiat 500">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Targa</label>
+        <input id="regTarga" class="form-input mono" placeholder="AA000AA" maxlength="10">
+      </div>
+      <div class="form-group">
+        <label class="form-label">PIN (4 cifre)</label>
+        <input id="regPin" class="form-input pin" placeholder="••••" maxlength="4" type="password" inputmode="numeric">
+      </div>
+      <button class="btn btn-primary" onclick="doRegister()">Registrati</button>
+      <button class="btn btn-secondary" style="margin-top:8px" onclick="showAuthModal('login')">Hai già un account</button>
+    `;
+  }
+  document.getElementById('modalAuth').classList.add('open');
+}
+
+let loginPin = '';
+function buildNumpad(containerId, handler) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const keys = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+  el.innerHTML = keys.map(k => k === '' ? '<div></div>' : `<div class="numpad-btn${k==='⌫'?' numpad-del':''}" onclick="numpadHandler('${k}')">${k}</div>`).join('');
+  window.numpadHandler = handler;
+}
+function loginPinHandler(k) {
+  if (k === '⌫') { loginPin = loginPin.slice(0,-1); }
+  else if (loginPin.length < 4) { loginPin += k; }
+  for (let i=0;i<4;i++) {
+    document.getElementById('pd'+i).classList.toggle('filled', i < loginPin.length);
+  }
+  if (loginPin.length === 4) doLogin();
+}
+async function doLogin() {
+  const targa = (document.getElementById('loginTarga')?.value||'').trim().toUpperCase();
+  if (!targa) { showToast('Inserisci la targa'); loginPin=''; updatePinDots(); return; }
+  if (loginPin === ADMIN_PIN && targa === 'ADMIN') {
+    currentUser = { nome: 'Admin', targa: 'ADMIN', auto: '', isAdmin: true, pin: ADMIN_PIN };
+    localStorage.setItem('pkUser', JSON.stringify(currentUser));
+    finishLogin(); return;
+  }
+  const snap = await getDoc(doc(db, 'utenti', targa));
+  if (!snap.exists()) { showToast('Utente non trovato'); loginPin=''; updatePinDots(); return; }
+  const u = snap.data();
+  if (u.pin !== loginPin) { showToast('PIN errato'); loginPin=''; updatePinDots(); return; }
+  currentUser = { ...u, targa };
+  localStorage.setItem('pkUser', JSON.stringify(currentUser));
+  finishLogin();
+}
+function updatePinDots() {
+  for (let i=0;i<4;i++) document.getElementById('pd'+i)?.classList.toggle('filled', i < loginPin.length);
+}
+function finishLogin() {
+  loginPin = '';
+  closeModal('modalAuth');
+  updateHeaderUser();
+  if (currentUser.isAdmin) document.getElementById('navAdmin').style.display = 'flex';
+  renderSlots();
+  renderMie();
+  showToast(`Bentornato, ${currentUser.nome.split(' ')[0]}!`);
+  if (pendingBookSlot) { openBookModal(pendingBookSlot); pendingBookSlot = null; }
+}
+window.doRegister = async function() {
+  const nome = document.getElementById('regNome').value.trim();
+  const auto = document.getElementById('regAuto').value.trim();
+  const targa = document.getElementById('regTarga').value.trim().toUpperCase();
+  const pin = document.getElementById('regPin').value.trim();
+  if (!nome||!targa||!pin) { showToast('Compila tutti i campi'); return; }
+  if (pin.length !== 4 || !/^\d{4}$/.test(pin)) { showToast('PIN deve essere 4 cifre'); return; }
+  const snap = await getDoc(doc(db,'utenti',targa));
+  if (snap.exists()) { showToast('Targa già registrata'); return; }
+  await setDoc(doc(db,'utenti',targa), { nome, auto, pin, targa });
+  currentUser = { nome, auto, targa, pin };
+  localStorage.setItem('pkUser', JSON.stringify(currentUser));
+  finishLogin();
+};
+
+// ─── SLOTS RENDERING ──────────────────────────────────────────
+function updateDateUI() {
+  const { main, sub } = formatDate(currentDay);
+  document.getElementById('dateMain').textContent = main;
+  document.getElementById('dateSub').textContent = sub;
+}
+window.changeDay = function(d) { currentDay += d; updateDateUI(); renderSlots(); renderMie(); };
+
+async function loadBookingsForDate(date) {
+  const q = query(collection(db,'prenotazioni'), where('data','==',date));
+  const snap = await getDocs(q);
+  const res = {};
+  snap.forEach(d => { res[bookingKey(d.data().data, d.data().slot, d.data().posto)] = d.data(); });
+  return res;
+}
+
+async function renderSlots() {
+  updateDateUI();
+  const date = dateStr(currentDay);
+  const container = document.getElementById('slotsContainer');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Caricamento...</div>';
+  const bookings = await loadBookingsForDate(date);
+  allBookings = bookings;
+
+  let html = '<div class="slots-grid">';
+  for (const slot of SLOTS) {
+    html += `<div class="slot-label">${slot.emoji} ${slot.label} <span style="color:var(--text3);font-weight:400">${slot.time}</span></div>`;
+    html += '<div class="slot-row">';
+    for (const post of POSTS) {
+      const key = bookingKey(date, slot.id, post);
+      const booking = bookings[key];
+      const isPast = isSlotPast(currentDay, slot.id);
+      let cardClass = 'free', tag = '', ownerHtml = '', cancelBtn = '', waitingHtml = '';
+      if (booking) {
+        if (booking.tipo === 'blocco') {
+          cardClass = 'blocked';
+          tag = `<span class="slot-status-tag tag-blocked">🔒 Bloccato</span>`;
+          ownerHtml = `<div class="slot-owner">${booking.motivo || 'Fornitore'}</div>`;
+        } else if (currentUser && booking.targa === currentUser.targa) {
+          cardClass = 'mine';
+          tag = `<span class="slot-status-tag tag-mine">✓ Tuo</span>`;
+          ownerHtml = `<div class="slot-owner">${booking.nome}</div><div class="slot-plate">${booking.targa}</div>`;
+          if (!isPast) cancelBtn = `<button class="slot-cancel-btn" onclick="cancelBooking('${key}',event)">✕</button>`;
+        } else {
+          cardClass = 'taken';
+          tag = `<span class="slot-status-tag tag-taken">Occupato</span>`;
+          ownerHtml = `<div class="slot-owner">${booking.nome}</div><div class="slot-plate">${booking.targa}</div>`;
+          // Waiting list
+          if (currentUser && booking.waiting && booking.waiting.includes(currentUser.targa)) {
+            waitingHtml = `<div class="waiting-badge">⏳ In attesa</div>`;
+          } else if (currentUser && !isPast) {
+            waitingHtml = `<div class="waiting-badge" onclick="addWaiting('${key}',event)" style="cursor:pointer;background:var(--blue-bg);color:var(--blue)">+ Attesa</div>`;
+          }
+        }
+      } else {
+        tag = `<span class="slot-status-tag tag-free">Libero</span>`;
+      }
+      if (isPast) cardClass += ' past';
+      const clickable = !booking && !isPast;
+      html += `
+        <div class="slot-card ${cardClass}" ${clickable ? `onclick="onSlotClick('${slot.id}','${post}','${date}')"` : ''}>
+          <div class="time-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>${slot.time}</div>
+          <div class="slot-number">${post}</div>
+          ${tag}
+          ${ownerHtml}
+          ${cancelBtn}
+          ${waitingHtml}
+        </div>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+window.onSlotClick = function(slot, post, date) {
+  if (!currentUser) { pendingBookSlot = {slot,post,date}; showAuthModal('login'); return; }
+  openBookModal({slot,post,date});
+};
+
+function openBookModal(info) {
+  const slotObj = SLOTS.find(s=>s.id===info.slot);
+  const el = document.getElementById('bookContent');
+  el.innerHTML = `
+    <div class="modal-title">Prenota ${info.post}</div>
+    <div class="modal-sub">${slotObj.emoji} ${slotObj.label} · ${slotObj.time}</div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="info-row"><span class="info-row-label">Data</span><span class="info-row-value">${info.date}</span></div>
+      <div class="info-row"><span class="info-row-label">Posto</span><span class="info-row-value">${info.post}</span></div>
+      <div class="info-row"><span class="info-row-label">Fascia</span><span class="info-row-value">${slotObj.label}</span></div>
+      <div class="info-row"><span class="info-row-label">Utente</span><span class="info-row-value">${currentUser.nome}</span></div>
+      <div class="info-row"><span class="info-row-label">Targa</span><span class="info-row-value" style="font-family:'DM Mono',monospace">${currentUser.targa}</span></div>
+    </div>
+    <button class="btn btn-green" onclick="confirmBook('${info.date}','${info.slot}','${info.post}')">Conferma prenotazione</button>
+    <button class="btn btn-secondary" style="margin-top:8px" onclick="closeModal('modalBook')">Annulla</button>
+  `;
+  document.getElementById('modalBook').classList.add('open');
+}
+
+window.confirmBook = async function(date, slot, post) {
+  // Check 1 slot per day rule
+  const dayBookings = await loadBookingsForDate(date);
+  const alreadyBooked = Object.values(dayBookings).find(b => b.targa === currentUser.targa && b.tipo !== 'blocco');
+  if (alreadyBooked) { showToast('Hai già una prenotazione oggi'); closeModal('modalBook'); return; }
+  const key = bookingKey(date,slot,post);
+  if (dayBookings[key]) { showToast('Posto già occupato'); closeModal('modalBook'); renderSlots(); return; }
+  await setDoc(doc(db,'prenotazioni',key), {
+    data: date, slot, posto: post,
+    nome: currentUser.nome, targa: currentUser.targa,
+    auto: currentUser.auto || '', tipo: 'prenotazione',
+    ts: Date.now()
+  });
+  closeModal('modalBook');
+  showToast('Prenotazione confermata! ✓');
+  renderSlots();
+  renderMie();
+};
+
+window.cancelBooking = async function(key, e) {
+  e.stopPropagation();
+  if (!confirm('Cancellare questa prenotazione?')) return;
+  const snap = await getDoc(doc(db,'prenotazioni',key));
+  if (snap.exists()) {
+    const data = snap.data();
+    // Notify waiting list
+    if (data.waiting && data.waiting.length > 0) {
+      showToast('Posto liberato — lista d\'attesa notificata');
+    }
+    await deleteDoc(doc(db,'prenotazioni',key));
+  }
+  showToast('Prenotazione cancellata');
+  renderSlots();
+  renderMie();
+};
+
+window.addWaiting = async function(key, e) {
+  e.stopPropagation();
+  if (!currentUser) { showAuthModal('login'); return; }
+  const snap = await getDoc(doc(db,'prenotazioni',key));
+  if (!snap.exists()) { renderSlots(); return; }
+  const data = snap.data();
+  const waiting = data.waiting || [];
+  if (waiting.includes(currentUser.targa)) { showToast('Sei già in lista d\'attesa'); return; }
+  waiting.push(currentUser.targa);
+  await setDoc(doc(db,'prenotazioni',key), {...data, waiting});
+  showToast('Aggiunto in lista d\'attesa');
+  renderSlots();
+};
+
+// ─── LE MIE PRENOTAZIONI ──────────────────────────────────────
+async function renderMie() {
+  const container = document.getElementById('mieContainer');
+  if (!currentUser) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔐</div><div class="empty-state-text">Accedi per vedere le tue prenotazioni</div></div>`;
+    return;
+  }
+  container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const q = query(collection(db,'prenotazioni'), where('targa','==',currentUser.targa));
+  const snap = await getDocs(q);
+  const items = [];
+  snap.forEach(d => items.push({id:d.id,...d.data()}));
+  items.sort((a,b) => a.data > b.data ? 1 : -1);
+  const future = items.filter(i => i.data >= dateStr(0) && i.tipo !== 'blocco');
+  if (future.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚗</div><div class="empty-state-text">Nessuna prenotazione attiva</div></div>`;
+    return;
+  }
+  container.innerHTML = future.map(item => {
+    const slotObj = SLOTS.find(s=>s.id===item.slot);
+    const isPast = item.data < dateStr(0);
+    return `
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div style="font-size:16px;font-weight:600">${item.posto} · ${slotObj.emoji} ${slotObj.label}</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:3px">${item.data} · ${slotObj.time}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-top:2px">${item.targa}</div>
+        </div>
+        ${!isPast ? `<button class="btn btn-danger" style="width:auto;padding:8px 14px;font-size:12px" onclick="cancelBooking('${item.id}',event)">Cancella</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── ADMIN ────────────────────────────────────────────────────
+window.selectBlockSlot = function(s) {
+  selectedBlockSlot = s;
+  document.getElementById('blockSlotMattina').classList.toggle('selected', s==='mattina');
+  document.getElementById('blockSlotSerale').classList.toggle('selected', s==='serale');
+};
+window.selectBlockPost = function(p) {
+  selectedBlockPost = p;
+  ['1','2','All'].forEach(x => document.getElementById('blockP'+x).classList.toggle('selected', p===x.toLowerCase()));
+};
+window.adminBlock = async function() {
+  if (!currentUser?.isAdmin) return;
+  const date = document.getElementById('blockDate').value;
+  if (!date) { showToast('Scegli una data'); return; }
+  const motivo = document.getElementById('blockReason').value.trim() || 'Fornitore';
+  const posts = selectedBlockPost === 'all' ? ['P1','P2'] : [`P${selectedBlockPost}`];
+  for (const post of posts) {
+    const key = bookingKey(date, selectedBlockSlot, post);
+    await setDoc(doc(db,'prenotazioni',key), {
+      data: date, slot: selectedBlockSlot, posto: post,
+      nome: 'Admin', targa: 'ADMIN',
+      motivo, tipo: 'blocco', ts: Date.now()
+    });
+  }
+  showToast('Posto bloccato ✓');
+  renderSlots();
+};
+window.adminUnblock = async function() {
+  if (!currentUser?.isAdmin) return;
+  const date = document.getElementById('blockDate').value;
+  if (!date) { showToast('Scegli una data'); return; }
+  const posts = selectedBlockPost === 'all' ? ['P1','P2'] : [`P${selectedBlockPost}`];
+  for (const post of posts) {
+    await deleteDoc(doc(db,'prenotazioni',bookingKey(date,selectedBlockSlot,post)));
+  }
+  showToast('Blocco rimosso');
+  renderSlots();
+};
+window.switchAdminTab = function(tab) {
+  document.getElementById('adminBlock').style.display = tab==='block'?'block':'none';
+  document.getElementById('adminUsers').style.display = tab==='users'?'block':'none';
+  document.getElementById('tabBlock').classList.toggle('active', tab==='block');
+  document.getElementById('tabUsers').classList.toggle('active', tab==='users');
+  if (tab==='users') loadUsers();
+};
+async function loadUsers() {
+  const container = document.getElementById('usersListContainer');
+  const snap = await getDocs(collection(db,'utenti'));
+  const users = [];
+  snap.forEach(d => users.push({id:d.id,...d.data()}));
+  if (users.length===0) { container.innerHTML='<div class="empty-state">Nessun utente</div>'; return; }
+  container.innerHTML = users.map(u=>`
+    <div class="user-item">
+      <div class="user-avatar">${initials(u.nome)}</div>
+      <div class="user-info">
+        <div class="user-name">${u.nome}</div>
+        <div class="user-plate">${u.targa} · ${u.auto||'—'}</div>
+      </div>
+      <button class="user-delete" onclick="deleteUser('${u.targa}')">Rimuovi</button>
+    </div>
+  `).join('');
+}
+window.deleteUser = async function(targa) {
+  if (!confirm(`Rimuovere ${targa}?`)) return;
+  await deleteDoc(doc(db,'utenti',targa));
+  showToast('Utente rimosso');
+  loadUsers();
+};
+
+// ─── NAVIGATION ───────────────────────────────────────────────
+window.switchScreen = function(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen'+name).classList.add('active');
+  document.getElementById('nav'+name).classList.add('active');
+  if (name==='Mie') renderMie();
+  if (name==='Admin') { document.getElementById('blockDate').value = dateStr(0); }
+};
+
+window.closeModal = function(id) {
+  document.getElementById(id).classList.remove('open');
+  loginPin = '';
+};
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); });
+});
+
+function updateHeaderUser() {
+  const avatar = document.getElementById('headerAvatar');
+  const name = document.getElementById('headerName');
+  if (currentUser) {
+    avatar.textContent = initials(currentUser.nome);
+    name.textContent = currentUser.nome.split(' ')[0];
+  } else {
+    avatar.textContent = '?';
+    name.textContent = 'Accedi';
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────
+updateHeaderUser();
+if (currentUser?.isAdmin) document.getElementById('navAdmin').style.display = 'flex';
+updateDateUI();
+renderSlots();
+</script>
+</body>
+</html>
