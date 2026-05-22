@@ -141,9 +141,12 @@
       <div class="app-logo-sub">condominio</div>
     </div>
   </div>
-  <div class="header-user" id="headerUser" onclick="openProfile()">
-    <div class="avatar" id="headerAvatar">?</div>
-    <span id="headerName">Accedi</span>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div onclick="showInfo()" style="width:34px;height:34px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;font-weight:600;color:var(--text2);flex-shrink:0">?</div>
+    <div class="header-user" id="headerUser" onclick="openProfile()">
+      <div class="avatar" id="headerAvatar">?</div>
+      <span id="headerName">Accedi</span>
+    </div>
   </div>
 </div>
 <div class="main">
@@ -189,6 +192,7 @@
   </div>
 </nav>
 <div class="toast" id="toast"></div>
+<div class="modal-overlay" id="modalInfo"><div class="modal"><div class="modal-handle"></div><div id="infoContent"></div></div></div>
 <div class="modal-overlay" id="modalAuth"><div class="modal"><div class="modal-handle"></div><div id="authContent"></div></div></div>
 <div class="modal-overlay" id="modalBook"><div class="modal"><div class="modal-handle"></div><div id="bookContent"></div></div></div>
 <div class="modal-overlay" id="modalProfile"><div class="modal"><div class="modal-handle"></div><div id="profileContent"></div></div></div>
@@ -851,6 +855,48 @@ window.switchScreen = function(name) {
 };
 window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); loginPin=''; };
 document.querySelectorAll('.modal-overlay').forEach(function(m){ m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('open');}); });
+
+window.showInfo = function() {
+  document.getElementById('infoContent').innerHTML = `
+    <div class="modal-title">Guida e Regole</div>
+
+    <div style="font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin:0 0 8px">Prima registrazione</div>
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.7;color:var(--text2)">
+      <div style="margin-bottom:6px">1. Salva il link sul telefono come shortcut sulla schermata home.</div>
+      <div style="margin-bottom:6px">2. Tocca <strong>Accedi</strong> in alto a destra.</div>
+      <div style="margin-bottom:6px">3. Tocca <strong>Non hai un account? Registrati</strong>.</div>
+      <div style="margin-bottom:6px">4. Compila: nome e cognome, famiglia, modello auto, targa, PIN a 4 cifre.</div>
+      <div style="margin-bottom:6px">5. Il PIN lo scegli tu &mdash; ricordatelo. Solo l&rsquo;admin pu&ograve; resettarlo.</div>
+      <div>6. Dagli accessi successivi: inserisci solo <strong>targa + PIN</strong>.</div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin:0 0 8px">Come prenotare</div>
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.7;color:var(--text2)">
+      <div style="margin-bottom:6px">1. Naviga al giorno che ti interessa con le frecce.</div>
+      <div style="margin-bottom:6px">2. Per la <strong>fascia diurna</strong> (08:00&ndash;21:00): tocca <strong>+ Prenota</strong> e scegli ora di inizio e fine.</div>
+      <div style="margin-bottom:6px">3. Per la <strong>fascia notturna</strong> (21:00&ndash;08:00): tocca la card notte &mdash; prenoti l&rsquo;intera fascia.</div>
+      <div>4. Il sistema assegna automaticamente P1 o P2.</div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin:0 0 8px">Regole</div>
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.7;color:var(--text2)">
+      <div style="margin-bottom:6px">&#128101; <strong>1 prenotazione per famiglia</strong> al giorno. Se un membro prenota, gli altri della stessa famiglia sono bloccati.</div>
+      <div style="margin-bottom:6px">&#9728;&#65039; <strong>Fascia diurna</strong>: orario libero dalle 08:00 alle 21:00, a step di 30 minuti.</div>
+      <div style="margin-bottom:6px">&#127769; <strong>Fascia notturna</strong>: blocco intero 21:00&ndash;08:00, non parzializzabile.</div>
+      <div style="margin-bottom:6px">&#9888;&#65039; <strong>Seconda prenotazione</strong> nella stessa giornata: devi copiare un messaggio e incollarlo nel gruppo WhatsApp <em>Condominio Bettina</em>. Il posto viene riservato per 30 minuti &mdash; se nessuno lo reclama diventa tuo.</div>
+      <div style="margin-bottom:6px">&#10060; <strong>Cancellazione</strong>: libera in qualsiasi momento dalla card o da &ldquo;Le mie&rdquo;.</div>
+      <div>&#128274; I posti possono essere bloccati dall&rsquo;admin per fornitori o giardiniere &mdash; il motivo &egrave; sempre visibile.</div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin:0 0 8px">Problemi?</div>
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;font-size:13px;line-height:1.7;color:var(--text2)">
+      PIN dimenticato o altri problemi: contatta l&rsquo;amministratore del condominio.
+    </div>
+
+    <button class="btn btn-secondary" onclick="closeModal('modalInfo')">Chiudi</button>
+  `;
+  document.getElementById('modalInfo').classList.add('open');
+};
 
 function updateHeaderUser() {
   if (currentUser) {
