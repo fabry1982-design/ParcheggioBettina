@@ -738,6 +738,7 @@ window.logout = () => {
 
 function showAuthModal(mode) {
   const el = document.getElementById('authContent');
+  const modal = document.getElementById('modalAuth');
   if (mode === 'login') {
     el.innerHTML = `
       <div class="modal-title">Accedi</div>
@@ -748,50 +749,38 @@ function showAuthModal(mode) {
       <button class="btn btn-secondary" onclick="showAuthModal('register')">Non hai un account? Registrati</button>
       <button class="btn btn-secondary" style="margin-top:8px" onclick="closeModal('modalAuth')">Annulla</button>
     `;
+    modal.classList.add('open');
     buildNumpad('loginNumpad', loginPinHandler);
   } else {
-    showRegisterForm([]);
+    el.innerHTML = `
+      <div class="modal-title">Registrati</div>
+      <div class="modal-sub">Prima registrazione</div>
+      <div class="form-group"><label class="form-label">Nome e cognome</label><input id="regNome" class="form-input" placeholder="Mario Rossi"></div>
+      <div class="form-group"><label class="form-label">Famiglia</label><select id="regFam" class="form-select"><option value="">Caricamento famiglie...</option></select></div>
+      <div class="form-group"><label class="form-label">Modello auto</label><input id="regAuto" class="form-input" placeholder="Fiat 500"></div>
+      <div class="form-group"><label class="form-label">Targa</label><input id="regTarga" class="form-input mono" placeholder="AA000AA" maxlength="10"></div>
+      <div class="form-group"><label class="form-label">PIN (4 cifre)</label><input id="regPin" class="form-input" style="letter-spacing:6px;font-size:20px;text-align:center;font-family:'DM Mono',monospace" placeholder="••••" maxlength="4" type="password" inputmode="numeric"></div>
+      <button class="btn btn-primary" onclick="doRegister()">Registrati</button>
+      <button class="btn btn-secondary" style="margin-top:8px" onclick="showAuthModal('login')">Ho già un account</button>
+    `;
+    modal.classList.add('open');
     loadFamilies().then(families => {
       const sel = document.getElementById('regFam');
       if (!sel) return;
-      sel.innerHTML = '';
-      const def = document.createElement('option');
-      def.value = ''; def.textContent = 'Scegli famiglia';
-      sel.appendChild(def);
-      if (families.length) {
-        families.forEach(f => {
-          const opt = document.createElement('option');
-          opt.value = f.id; opt.textContent = f.nome;
-          sel.appendChild(opt);
-        });
-      } else {
+      sel.innerHTML = '<option value="">Scegli famiglia</option>';
+      families.forEach(f => {
         const opt = document.createElement('option');
-        opt.value = ''; opt.textContent = 'Nessuna famiglia disponibile';
+        opt.value = f.id;
+        opt.textContent = f.nome;
         sel.appendChild(opt);
+      });
+      if (!families.length) {
+        sel.innerHTML = '<option value="">Nessuna famiglia — chiedi admin</option>';
       }
     });
   }
-  document.getElementById('modalAuth').classList.add('open');
 }
 
-function showRegisterForm() {
-  const el = document.getElementById('authContent');
-  el.innerHTML = `
-    <div class="modal-title">Registrati</div>
-    <div class="modal-sub">Prima registrazione</div>
-    <div class="form-group"><label class="form-label">Nome e cognome</label><input id="regNome" class="form-input" placeholder="Mario Rossi"></div>
-    <div class="form-group">
-      <label class="form-label">Famiglia / Appartamento</label>
-      <select id="regFam" class="form-select"><option value="">Caricamento...</option></select>
-    </div>
-    <div class="form-group"><label class="form-label">Modello auto</label><input id="regAuto" class="form-input" placeholder="Fiat 500"></div>
-    <div class="form-group"><label class="form-label">Targa</label><input id="regTarga" class="form-input mono" placeholder="AA000AA" maxlength="10"></div>
-    <div class="form-group"><label class="form-label">PIN (4 cifre)</label><input id="regPin" class="form-input" style="letter-spacing:6px;font-size:20px;text-align:center;font-family:'DM Mono',monospace" placeholder="••••" maxlength="4" type="password" inputmode="numeric"></div>
-    <button class="btn btn-primary" onclick="doRegister()">Registrati</button>
-    <button class="btn btn-secondary" style="margin-top:8px" onclick="showAuthModal('login')">Ho già un account</button>
-  `;
-  document.getElementById('modalAuth').classList.add('open');
-}
 
 function buildNumpad(containerId, handler) {
   const el = document.getElementById(containerId);
@@ -1041,3 +1030,4 @@ renderHome();
 </script>
 </body>
 </html>
+
